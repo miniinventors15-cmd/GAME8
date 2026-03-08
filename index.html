@@ -1,198 +1,269 @@
 <!DOCTYPE html><html>
 <head>
-<title>Security Breach</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>
+<title>System Breach</title><style>
 
 body{
-margin:0;
 background:black;
+color:#00ff00;
 font-family:monospace;
-color:#00ff00;
+margin:0;
 overflow:hidden;
-}
-
-/* MATRIX BACKGROUND */
-
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
-}
-
-/* TOP WARNING */
-
-#topWarning{
 text-align:center;
+}
+
+#warning{
 color:red;
-font-size:42px;
+font-size:60px;
+margin-top:30px;
+animation:shake 0.2s infinite;
+}
+
+@keyframes shake{
+0%{transform:translate(0,0)}
+25%{transform:translate(2px,-2px)}
+50%{transform:translate(-2px,2px)}
+75%{transform:translate(2px,2px)}
+100%{transform:translate(-2px,-2px)}
+}
+
+#barbox{
+width:70%;
+height:35px;
+border:3px solid lime;
+margin:auto;
 margin-top:20px;
-}
-
-/* DONT LEAVE */
-
-#dontleave{
-text-align:center;
-color:#00ff00;
-margin-top:10px;
-}
-
-/* TERMINAL */
-
-#terminal{
-position:absolute;
-left:20px;
-top:120px;
-font-size:16px;
-line-height:22px;
-}
-
-/* PROGRESS BAR */
-
-#progressBox{
-position:absolute;
-top:150px;
-left:200px;
-width:300px;
-height:18px;
-border:2px solid red;
 }
 
 #bar{
 height:100%;
-width:70%;
+width:0%;
 background:red;
 }
 
-/* COUNTDOWN */
-
-#countdown{
-position:absolute;
-top:200px;
-left:200px;
+#count{
+font-size:35px;
 color:yellow;
-font-size:26px;
+margin-top:15px;
 }
 
-/* ACCESS DENIED */
+#matrix{
+position:absolute;
+right:0;
+top:0;
+width:20%;
+height:60%;
+font-size:10px;
+color:#00ff00;
+overflow:hidden;
+}
+
+#logs{
+position:absolute;
+left:10px;
+top:220px;
+width:50%;
+text-align:left;
+font-size:18px;
+line-height:28px;
+}
+
+#stopbox{
+position:absolute;
+right:30px;
+bottom:30px;
+background:red;
+color:white;
+padding:30px;
+font-size:30px;
+border:4px solid white;
+cursor:pointer;
+animation:blink 0.8s infinite;
+}
+
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.3}
+100%{opacity:1}
+}
 
 #denied{
 position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-font-size:80px;
+font-size:120px;
 color:red;
-text-align:center;
+display:none;
+font-weight:bold;
+animation:blink 0.4s infinite;
 }
+
+</style></head><body><div id="warning">⚠ YOU ARE BEING HACKED ⚠</div><h2>DONT LEAVE !!!</h2><div id="barbox">
+<div id="bar"></div>
+</div><div id="count">System shutting in 50 sec</div><div id="matrix"></div><div id="logs"></div><div id="stopbox">CLICK HERE TO STOP</div><div id="denied">ACCESS DENIED</div><script>
+
+var audioCtx;
+var gainNode;
+var beepSpeed = 1200;
+
+/* SOUND */
+
+function startStatic(){
+
+audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+var bufferSize = 2 * audioCtx.sampleRate;
+var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+var output = noiseBuffer.getChannelData(0);
+
+for (var i = 0; i < bufferSize; i++) {
+output[i] = Math.random() * 2 - 1;
+}
+
+var noise = audioCtx.createBufferSource();
+noise.buffer = noiseBuffer;
+noise.loop = true;
+
+gainNode = audioCtx.createGain();
+gainNode.gain.value = 0.10;
+
+noise.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+noise.start();
+
+beepLoop();
+
+}
+
+function beep(){
+
+var osc = audioCtx.createOscillator();
+var gain = audioCtx.createGain();
+
+osc.type="square";
+osc.frequency.value=1000;
+
+gain.gain.value=0.20;
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start();
+
+setTimeout(function(){
+osc.stop();
+},120);
+
+}
+
+function beepLoop(){
+
+beep();
+
+var delay = Math.random()*beepSpeed;
+
+setTimeout(beepLoop,delay);
+
+}
+
+document.body.addEventListener("click",startStatic,{once:true});
 
 /* STOP BUTTON */
 
-#stopBtn{
-position:absolute;
-bottom:60px;
-right:60px;
-background:red;
-color:white;
-border:3px solid white;
-font-size:26px;
-padding:20px 40px;
-cursor:pointer;
-animation:blink 1s infinite;
+document.getElementById("stopbox").onclick=function(){
+
+document.getElementById("denied").style.display="block";
+
+for(let i=0;i<6;i++){
+setTimeout(beep,i*100);
 }
 
-/* BLINK */
+};
 
-@keyframes blink{
-0%{opacity:1;}
-50%{opacity:0.3;}
-100%{opacity:1;}
-}
+/* LOADING BAR */
 
-</style></head><body><canvas id="matrix"></canvas>
+var bar=0;
+var elem=document.getElementById("bar");
 
-<div id="topWarning">YOU ARE BEING HACKED</div><div id="dontleave">DONT LEAVE !!!</div><div id="progressBox">
-<div id="bar"></div>
-</div><div id="countdown">System shutting in 42 sec</div><div id="terminal">
-Accessing IP address...<br>
-IP FOUND: 192.168.0.23<br>
-Scanning device...<br>
-Accessing camera...<br>
-Camera access granted<br>
-Reading messages...<br>
-Reading contacts...<br>
-Decrypting storage...<br>
-Uploading encrypted packets...<br>
-</div><div id="denied">ACCESS DENIED</div><button id="stopBtn">CLICK HERE TO STOP</button>
+setInterval(function(){
 
-<script>
+bar++;
 
-/* MATRIX EFFECT */
+elem.style.width=bar+"%";
 
-let canvas=document.getElementById("matrix");
-let ctx=canvas.getContext("2d");
-
-canvas.height=window.innerHeight;
-canvas.width=window.innerWidth;
-
-let letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*";
-letters=letters.split("");
-
-let fontSize=14;
-let columns=canvas.width/fontSize;
-
-let drops=[];
-
-for(let x=0;x<columns;x++)
-drops[x]=1;
-
-function draw(){
-
-ctx.fillStyle="rgba(0,0,0,0.05)";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="#0f0";
-ctx.font=fontSize+"px monospace";
-
-for(let i=0;i<drops.length;i++){
-
-let text=letters[Math.floor(Math.random()*letters.length)];
-
-ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-
-if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
-drops[i]=0;
-
-drops[i]++;
-
-}
-
-}
-
-setInterval(draw,33);
-
+},100);
 
 /* COUNTDOWN */
 
-let time=42;
+var time=50;
 
 setInterval(function(){
 
 time--;
 
-document.getElementById("countdown").innerText="System shutting in "+time+" sec";
+document.getElementById("count").innerHTML =
+"System shutting in "+time+" sec";
+
+if(time==10){
+
+beepSpeed = 250;
+gainNode.gain.value = 0.18;
+
+}
 
 },1000);
 
+/* MATRIX */
 
-/* STOP BUTTON */
+var matrix=document.getElementById("matrix");
 
-document.getElementById("stopBtn").onclick=function(){
+setInterval(function(){
 
-alert("Security simulation stopped");
+var chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
 
-location.reload();
+var line="";
+
+for(var i=0;i<35;i++){
+
+line+=chars[Math.floor(Math.random()*chars.length)];
 
 }
+
+matrix.innerHTML=line+"<br>"+matrix.innerHTML;
+
+},50);
+
+/* LOGS */
+
+var logs=[
+"Accessing IP address...",
+"IP FOUND: 192.168.0.24",
+"Scanning device...",
+"Accessing camera...",
+"Camera access granted",
+"Reading messages...",
+"Accessing contacts...",
+"Extracting passwords...",
+"Tracking location...",
+"Uploading files...",
+"Encrypting storage...",
+"System breach complete"
+];
+
+var i=0;
+
+setInterval(function(){
+
+if(i<logs.length){
+
+document.getElementById("logs").innerHTML+=logs[i]+"<br>";
+
+i++;
+
+}
+
+},1200);
 
 </script></body>
 </html>
