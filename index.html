@@ -1,92 +1,132 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Cyber Security Simulation</title>
-
-<style>
+<title>Security Breach</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>
 
 body{
 margin:0;
 background:black;
-color:#00ff00;
 font-family:monospace;
+color:#00ff00;
 overflow:hidden;
 }
 
-#title{
-text-align:center;
-color:red;
-font-size:26px;
-margin-top:10px;
-}
-
-#terminal{
-position:absolute;
-left:20px;
-top:100px;
-width:45%;
-font-size:14px;
-line-height:18px;
-}
-
-#progress{
-position:absolute;
-top:70px;
-left:20px;
-width:45%;
-height:18px;
-border:1px solid red;
-background:#111;
-display:none;
-}
-
-#bar{
-height:100%;
-width:0%;
-background:red;
-}
-
-#activate{
-position:absolute;
-bottom:40px;
-right:40px;
-background:red;
-color:white;
-border:2px solid white;
-padding:12px 20px;
-font-size:16px;
-cursor:pointer;
-}
+/* MATRIX BACKGROUND */
 
 canvas{
-position:absolute;
+position:fixed;
 top:0;
 left:0;
 z-index:-1;
 }
 
-</style>
-</head>
+/* TOP WARNING */
 
-<body>
+#topWarning{
+text-align:center;
+color:red;
+font-size:42px;
+margin-top:20px;
+}
 
-<div id="title">CYBER SECURITY SIMULATION</div>
+/* DONT LEAVE */
 
-<div id="progress">
+#dontleave{
+text-align:center;
+color:#00ff00;
+margin-top:10px;
+}
+
+/* TERMINAL */
+
+#terminal{
+position:absolute;
+left:20px;
+top:120px;
+font-size:16px;
+line-height:22px;
+}
+
+/* PROGRESS BAR */
+
+#progressBox{
+position:absolute;
+top:150px;
+left:200px;
+width:300px;
+height:18px;
+border:2px solid red;
+}
+
+#bar{
+height:100%;
+width:70%;
+background:red;
+}
+
+/* COUNTDOWN */
+
+#countdown{
+position:absolute;
+top:200px;
+left:200px;
+color:yellow;
+font-size:26px;
+}
+
+/* ACCESS DENIED */
+
+#denied{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:80px;
+color:red;
+text-align:center;
+}
+
+/* STOP BUTTON */
+
+#stopBtn{
+position:absolute;
+bottom:60px;
+right:60px;
+background:red;
+color:white;
+border:3px solid white;
+font-size:26px;
+padding:20px 40px;
+cursor:pointer;
+animation:blink 1s infinite;
+}
+
+/* BLINK */
+
+@keyframes blink{
+0%{opacity:1;}
+50%{opacity:0.3;}
+100%{opacity:1;}
+}
+
+</style></head><body><canvas id="matrix"></canvas>
+
+<div id="topWarning">YOU ARE BEING HACKED</div><div id="dontleave">DONT LEAVE !!!</div><div id="progressBox">
 <div id="bar"></div>
-</div>
-
-<div id="terminal"></div>
-
-<button id="activate">ACTIVATE</button>
-
-<canvas id="matrix"></canvas>
+</div><div id="countdown">System shutting in 42 sec</div><div id="terminal">
+Accessing IP address...<br>
+IP FOUND: 192.168.0.23<br>
+Scanning device...<br>
+Accessing camera...<br>
+Camera access granted<br>
+Reading messages...<br>
+Reading contacts...<br>
+Decrypting storage...<br>
+Uploading encrypted packets...<br>
+</div><div id="denied">ACCESS DENIED</div><button id="stopBtn">CLICK HERE TO STOP</button>
 
 <script>
 
-/* MATRIX RAIN */
+/* MATRIX EFFECT */
 
 let canvas=document.getElementById("matrix");
 let ctx=canvas.getContext("2d");
@@ -110,7 +150,7 @@ function draw(){
 ctx.fillStyle="rgba(0,0,0,0.05)";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.fillStyle="#0F0";
+ctx.fillStyle="#0f0";
 ctx.font=fontSize+"px monospace";
 
 for(let i=0;i<drops.length;i++){
@@ -131,105 +171,28 @@ drops[i]++;
 setInterval(draw,33);
 
 
-/* TERMINAL TYPING */
+/* COUNTDOWN */
 
-let lines=[
-"Booting security scanner...",
-"Scanning network...",
-"Detecting IP address...",
-"IP detected: 192.168.0.23",
-"Checking system ports...",
-"Accessing system files...",
-"Waiting for activation..."
-];
+let time=42;
 
-let terminal=document.getElementById("terminal");
+setInterval(function(){
 
-let lineIndex=0;
+time--;
 
-function typeLine(){
+document.getElementById("countdown").innerText="System shutting in "+time+" sec";
 
-if(lineIndex<lines.length){
+},1000);
 
-let p=document.createElement("div");
-terminal.appendChild(p);
 
-let text=lines[lineIndex];
-let i=0;
+/* STOP BUTTON */
 
-let typing=setInterval(()=>{
+document.getElementById("stopBtn").onclick=function(){
 
-p.textContent+=text[i];
-i++;
+alert("Security simulation stopped");
 
-if(i>=text.length){
-clearInterval(typing);
-lineIndex++;
-setTimeout(typeLine,600);
-}
-
-},40);
+location.reload();
 
 }
 
-}
-
-typeLine();
-
-
-/* BUTTON ACTIVATION */
-
-document.getElementById("activate").onclick=function(){
-
-document.getElementById("progress").style.display="block";
-
-let newLines=[
-"Activation confirmed...",
-"Extracting device data...",
-"Reading contacts...",
-"Decrypting files...",
-"Uploading encrypted packets..."
-];
-
-newLines.forEach(line=>{
-let p=document.createElement("div");
-p.textContent=line;
-terminal.appendChild(p);
-});
-
-let bar=document.getElementById("bar");
-let width=0;
-
-let load=setInterval(()=>{
-
-if(width>=100){
-clearInterval(load);
-}else{
-width++;
-bar.style.width=width+"%";
-}
-
-},80);
-
-
-/* voice warning */
-
-let msg=new SpeechSynthesisUtterance(
-"Warning. Security breach detected."
-);
-
-speechSynthesis.speak(msg);
-
-
-/* vibration */
-
-if(navigator.vibrate){
-navigator.vibrate([300,200,300,200,300]);
-}
-
-};
-
-</script>
-
-</body>
+</script></body>
 </html>
