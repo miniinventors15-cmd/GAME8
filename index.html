@@ -1,112 +1,151 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber Security Simulation</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Security Simulation</title>
 
 <style>
+
 body{
-margin:0;
 background:black;
 color:#00ff00;
 font-family:monospace;
 overflow:hidden;
+margin:0;
+}
+
+#matrix{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:0;
+}
+
+#content{
+position:relative;
+z-index:2;
+padding:20px;
 }
 
 #title{
-position:absolute;
-top:15px;
-left:50%;
-transform:translateX(-50%);
-font-size:30px;
 color:red;
-animation:blink 0.8s infinite;
+font-size:45px;
+text-align:center;
 }
 
-#subtitle{
-position:absolute;
-top:55px;
-left:50%;
-transform:translateX(-50%);
-font-size:14px;
-color:white;
+#scan{
+margin-top:20px;
 }
 
-#terminal{
-position:absolute;
-top:90px;
-left:15px;
-width:60%;
-height:70%;
-overflow:hidden;
-font-size:14px;
+#progress{
+width:100%;
+background:#111;
+height:25px;
+margin-top:10px;
 }
 
-#codebox{
-position:absolute;
-top:90px;
-right:15px;
-width:35%;
-height:40%;
-border:2px solid #00ff00;
-overflow:hidden;
-font-size:12px;
-}
-
-#graph{
-position:absolute;
-bottom:120px;
-right:15px;
-width:35%;
-height:140px;
-border:2px solid #00ff00;
-}
-
-#stop{
-position:absolute;
-bottom:25px;
-left:50%;
-transform:translateX(-50%);
+#bar{
+width:0%;
+height:25px;
 background:red;
-color:white;
-padding:20px;
-font-size:22px;
-border:4px solid white;
-animation:blink 0.7s infinite;
-cursor:pointer;
 }
 
-canvas{
-position:absolute;
-top:0;
-left:0;
-z-index:-1;
+#denied{
+color:red;
+font-size:70px;
+text-align:center;
+margin-top:70px;
+animation:blink 0.7s infinite;
 }
 
 @keyframes blink{
 0%{opacity:1;}
-50%{opacity:0.3;}
+50%{opacity:0;}
 100%{opacity:1;}
 }
+
+#timer{
+text-align:center;
+color:yellow;
+font-size:24px;
+}
+
+#stop{
+position:fixed;
+bottom:30px;
+right:30px;
+background:red;
+color:white;
+padding:15px 25px;
+font-size:20px;
+border:3px solid white;
+z-index:3;
+}
+
+body.flash{
+animation:alertflash 0.6s infinite;
+}
+
+@keyframes alertflash{
+0%{background:black;}
+50%{background:#200;}
+100%{background:black;}
+}
+
+body.glitch{
+animation:glitch 0.2s infinite;
+}
+
+@keyframes glitch{
+0%{transform:translate(0);}
+20%{transform:translate(-3px,2px);}
+40%{transform:translate(3px,-2px);}
+60%{transform:translate(-2px,1px);}
+80%{transform:translate(2px,-1px);}
+100%{transform:translate(0);}
+}
+
 </style>
+
 </head>
 
 <body>
 
 <canvas id="matrix"></canvas>
 
-<div id="title">CYBER SECURITY ALERT</div>
-<div id="subtitle">Training Simulation</div>
+<div id="content">
 
-<div id="terminal"></div>
-<div id="codebox"></div>
-<canvas id="graph"></canvas>
+<div id="title">YOU ARE BEING HACKED</div>
 
-<div id="stop" onclick="location.reload()">STOP SIMULATION</div>
+<div id="scan">
+
+Accessing IP address...<br>
+IP FOUND: 192.168.0.24<br>
+Scanning device...<br>
+Accessing camera...<br>
+Camera access granted<br>
+Reading messages...<br>
+Accessing contacts...<br>
+
+</div>
+
+<div id="progress">
+<div id="bar"></div>
+</div>
+
+<h2 id="timer">System shutting in 45 sec</h2>
+
+<div id="denied">ACCESS DENIED</div>
+
+</div>
+
+<button id="stop" onclick="stopAll()">CLICK HERE TO STOP</button>
 
 <script>
-
-// MATRIX BACKGROUND
 
 var canvas=document.getElementById("matrix");
 var ctx=canvas.getContext("2d");
@@ -114,22 +153,21 @@ var ctx=canvas.getContext("2d");
 canvas.height=window.innerHeight;
 canvas.width=window.innerWidth;
 
-var letters="01ABCDEF#$%&";
+var letters="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 letters=letters.split("");
 
 var fontSize=14;
 var columns=canvas.width/fontSize;
+
 var drops=[];
+for(var x=0;x<columns;x++) drops[x]=1;
 
-for(var x=0;x<columns;x++)
-drops[x]=1;
-
-function drawMatrix(){
+function draw(){
 
 ctx.fillStyle="rgba(0,0,0,0.05)";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.fillStyle="#0f0";
+ctx.fillStyle="#0F0";
 ctx.font=fontSize+"px monospace";
 
 for(var i=0;i<drops.length;i++){
@@ -147,109 +185,96 @@ drops[i]++;
 
 }
 
-setInterval(drawMatrix,33);
+setInterval(draw,33);
 
 
-// TERMINAL LOGS
 
-var logs=[
-"Initializing security monitor...",
-"Scanning network activity...",
-"Running diagnostics...",
-"Checking firewall rules...",
-"Analyzing packet signatures...",
-"Monitoring data streams...",
-"Simulation environment active..."
-];
-
-var terminal=document.getElementById("terminal");
+var width=0;
+var bar=document.getElementById("bar");
 
 setInterval(function(){
 
-var line=document.createElement("div");
-line.textContent="> "+logs[Math.floor(Math.random()*logs.length)];
+width++;
 
-terminal.appendChild(line);
+bar.style.width=width+"%";
 
-terminal.scrollTop=terminal.scrollHeight;
-
-},700);
-
-
-// CODE STREAM
-
-var codebox=document.getElementById("codebox");
-
-setInterval(function(){
-
-var chars="{}[]<>#@$%^&*()0123456789abcdef";
-
-var line="";
-
-for(var i=0;i<30;i++)
-line+=chars[Math.floor(Math.random()*chars.length)];
-
-var div=document.createElement("div");
-div.textContent=line;
-
-codebox.appendChild(div);
-
-if(codebox.children.length>30)
-codebox.removeChild(codebox.children[0]);
+if(width>100) width=0;
 
 },80);
 
 
-// GRAPH
 
-var gcanvas=document.getElementById("graph");
-var gctx=gcanvas.getContext("2d");
+var time=45;
 
-var points=[];
+setInterval(function(){
 
-for(let i=0;i<60;i++)
-points.push(Math.random()*140);
+time--;
 
-function drawGraph(){
+document.getElementById("timer").innerHTML="System shutting in "+time+" sec";
 
-gctx.fillStyle="black";
-gctx.fillRect(0,0,gcanvas.width,gcanvas.height);
+if(time<=0) time=45;
 
-gctx.strokeStyle="#00ff00";
-gctx.beginPath();
-
-for(let i=0;i<points.length;i++){
-
-gctx.lineTo(i*5,points[i]);
-
-points[i]+=Math.random()*10-5;
-
-if(points[i]<0) points[i]=0;
-if(points[i]>140) points[i]=140;
-
-}
-
-gctx.stroke();
-
-}
-
-setInterval(drawGraph,120);
+},1000);
 
 
-// VOICE ALERT
 
-function voiceAlert(){
+function voiceWarning(){
 
-var msg=new SpeechSynthesisUtterance("Security simulation active");
+for(let i=0;i<10;i++){
+
+setTimeout(function(){
+
+var msg=new SpeechSynthesisUtterance("Warning. Your system has been compromised.");
+
 msg.volume=1;
 msg.rate=0.9;
-msg.pitch=1.2;
+msg.pitch=0.6;
 
 speechSynthesis.speak(msg);
 
+},i*2000);
+
 }
 
-setTimeout(voiceAlert,4000);
+}
+
+voiceWarning();
+
+
+
+function vibratePhone(){
+
+if(navigator.vibrate){
+navigator.vibrate([300,100,300,100,500]);
+}
+
+}
+
+setInterval(vibratePhone,4000);
+
+
+
+setInterval(function(){
+
+document.body.classList.toggle("flash");
+
+},1200);
+
+
+
+setInterval(function(){
+
+document.body.classList.toggle("glitch");
+
+},500);
+
+
+
+function stopAll(){
+
+document.body.innerHTML="<h1 style='color:white;text-align:center;margin-top:40%'>Simulation Stopped</h1>";
+
+}
 
 </script>
 
