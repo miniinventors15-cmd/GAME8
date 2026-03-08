@@ -1,166 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Security Simulation</title>
+<title>Cyber Security Simulation</title>
 
 <style>
 
 body{
+margin:0;
 background:black;
 color:#00ff00;
 font-family:monospace;
 overflow:hidden;
-margin:0;
-}
-
-#matrix{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:0;
-}
-
-#content{
-position:relative;
-z-index:2;
-padding:20px;
 }
 
 #title{
-color:red;
-font-size:45px;
 text-align:center;
-}
-
-#scan{
-margin-top:20px;
-}
-
-#progress{
-width:100%;
-background:#111;
-height:25px;
+color:red;
+font-size:26px;
 margin-top:10px;
 }
 
+#terminal{
+position:absolute;
+left:20px;
+top:100px;
+width:45%;
+font-size:14px;
+line-height:18px;
+}
+
+#progress{
+position:absolute;
+top:70px;
+left:20px;
+width:45%;
+height:18px;
+border:1px solid red;
+background:#111;
+display:none;
+}
+
 #bar{
+height:100%;
 width:0%;
-height:25px;
 background:red;
 }
 
-#denied{
-color:red;
-font-size:70px;
-text-align:center;
-margin-top:70px;
-animation:blink 0.7s infinite;
-}
-
-@keyframes blink{
-0%{opacity:1;}
-50%{opacity:0;}
-100%{opacity:1;}
-}
-
-#timer{
-text-align:center;
-color:yellow;
-font-size:24px;
-}
-
-#stop{
-position:fixed;
-bottom:30px;
-right:30px;
+#activate{
+position:absolute;
+bottom:40px;
+right:40px;
 background:red;
 color:white;
-padding:15px 25px;
-font-size:20px;
-border:3px solid white;
-z-index:3;
+border:2px solid white;
+padding:12px 20px;
+font-size:16px;
+cursor:pointer;
 }
 
-body.flash{
-animation:alertflash 0.6s infinite;
-}
-
-@keyframes alertflash{
-0%{background:black;}
-50%{background:#200;}
-100%{background:black;}
-}
-
-body.glitch{
-animation:glitch 0.2s infinite;
-}
-
-@keyframes glitch{
-0%{transform:translate(0);}
-20%{transform:translate(-3px,2px);}
-40%{transform:translate(3px,-2px);}
-60%{transform:translate(-2px,1px);}
-80%{transform:translate(2px,-1px);}
-100%{transform:translate(0);}
+canvas{
+position:absolute;
+top:0;
+left:0;
+z-index:-1;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<canvas id="matrix"></canvas>
-
-<div id="content">
-
-<div id="title">YOU ARE BEING HACKED</div>
-
-<div id="scan">
-
-Accessing IP address...<br>
-IP FOUND: 192.168.0.24<br>
-Scanning device...<br>
-Accessing camera...<br>
-Camera access granted<br>
-Reading messages...<br>
-Accessing contacts...<br>
-
-</div>
+<div id="title">CYBER SECURITY SIMULATION</div>
 
 <div id="progress">
 <div id="bar"></div>
 </div>
 
-<h2 id="timer">System shutting in 45 sec</h2>
+<div id="terminal"></div>
 
-<div id="denied">ACCESS DENIED</div>
+<button id="activate">ACTIVATE</button>
 
-</div>
-
-<button id="stop" onclick="stopAll()">CLICK HERE TO STOP</button>
+<canvas id="matrix"></canvas>
 
 <script>
 
-var canvas=document.getElementById("matrix");
-var ctx=canvas.getContext("2d");
+/* MATRIX RAIN */
+
+let canvas=document.getElementById("matrix");
+let ctx=canvas.getContext("2d");
 
 canvas.height=window.innerHeight;
 canvas.width=window.innerWidth;
 
-var letters="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*";
 letters=letters.split("");
 
-var fontSize=14;
-var columns=canvas.width/fontSize;
+let fontSize=14;
+let columns=canvas.width/fontSize;
 
-var drops=[];
-for(var x=0;x<columns;x++) drops[x]=1;
+let drops=[];
+
+for(let x=0;x<columns;x++)
+drops[x]=1;
 
 function draw(){
 
@@ -170,9 +113,9 @@ ctx.fillRect(0,0,canvas.width,canvas.height);
 ctx.fillStyle="#0F0";
 ctx.font=fontSize+"px monospace";
 
-for(var i=0;i<drops.length;i++){
+for(let i=0;i<drops.length;i++){
 
-var text=letters[Math.floor(Math.random()*letters.length)];
+let text=letters[Math.floor(Math.random()*letters.length)];
 
 ctx.fillText(text,i*fontSize,drops[i]*fontSize);
 
@@ -188,93 +131,103 @@ drops[i]++;
 setInterval(draw,33);
 
 
+/* TERMINAL TYPING */
 
-var width=0;
-var bar=document.getElementById("bar");
+let lines=[
+"Booting security scanner...",
+"Scanning network...",
+"Detecting IP address...",
+"IP detected: 192.168.0.23",
+"Checking system ports...",
+"Accessing system files...",
+"Waiting for activation..."
+];
 
-setInterval(function(){
+let terminal=document.getElementById("terminal");
 
+let lineIndex=0;
+
+function typeLine(){
+
+if(lineIndex<lines.length){
+
+let p=document.createElement("div");
+terminal.appendChild(p);
+
+let text=lines[lineIndex];
+let i=0;
+
+let typing=setInterval(()=>{
+
+p.textContent+=text[i];
+i++;
+
+if(i>=text.length){
+clearInterval(typing);
+lineIndex++;
+setTimeout(typeLine,600);
+}
+
+},40);
+
+}
+
+}
+
+typeLine();
+
+
+/* BUTTON ACTIVATION */
+
+document.getElementById("activate").onclick=function(){
+
+document.getElementById("progress").style.display="block";
+
+let newLines=[
+"Activation confirmed...",
+"Extracting device data...",
+"Reading contacts...",
+"Decrypting files...",
+"Uploading encrypted packets..."
+];
+
+newLines.forEach(line=>{
+let p=document.createElement("div");
+p.textContent=line;
+terminal.appendChild(p);
+});
+
+let bar=document.getElementById("bar");
+let width=0;
+
+let load=setInterval(()=>{
+
+if(width>=100){
+clearInterval(load);
+}else{
 width++;
-
 bar.style.width=width+"%";
-
-if(width>100) width=0;
+}
 
 },80);
 
 
+/* voice warning */
 
-var time=45;
-
-setInterval(function(){
-
-time--;
-
-document.getElementById("timer").innerHTML="System shutting in "+time+" sec";
-
-if(time<=0) time=45;
-
-},1000);
-
-
-
-function voiceWarning(){
-
-for(let i=0;i<10;i++){
-
-setTimeout(function(){
-
-var msg=new SpeechSynthesisUtterance("Warning. Your system has been compromised.");
-
-msg.volume=1;
-msg.rate=0.9;
-msg.pitch=0.6;
+let msg=new SpeechSynthesisUtterance(
+"Warning. Security breach detected."
+);
 
 speechSynthesis.speak(msg);
 
-},i*2000);
 
-}
-
-}
-
-voiceWarning();
-
-
-
-function vibratePhone(){
+/* vibration */
 
 if(navigator.vibrate){
-navigator.vibrate([300,100,300,100,500]);
+navigator.vibrate([300,200,300,200,300]);
 }
 
-}
-
-setInterval(vibratePhone,4000);
-
-
-
-setInterval(function(){
-
-document.body.classList.toggle("flash");
-
-},1200);
-
-
-
-setInterval(function(){
-
-document.body.classList.toggle("glitch");
-
-},500);
-
-
-
-function stopAll(){
-
-document.body.innerHTML="<h1 style='color:white;text-align:center;margin-top:40%'>Simulation Stopped</h1>";
-
-}
+};
 
 </script>
 
