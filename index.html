@@ -1,6 +1,8 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html>
 <head>
-<title>System Breach</title><style>
+<title>System Breach</title>
+<style>
 
 body{
 background:black;
@@ -98,9 +100,28 @@ font-weight:bold;
 animation:blink 0.4s infinite;
 }
 
-</style></head><body><div id="warning">⚠ YOU ARE BEING HACKED ⚠</div><h2>DONT LEAVE !!!</h2><div id="barbox">
+</style>
+</head>
+
+<body>
+
+<div id="warning">⚠ YOU ARE BEING HACKED ⚠</div>
+<h2>DONT LEAVE !!!</h2>
+
+<div id="barbox">
 <div id="bar"></div>
-</div><div id="count">System shutting in 50 sec</div><div id="matrix"></div><div id="logs"></div><div id="stopbox">CLICK HERE TO STOP</div><div id="denied">ACCESS DENIED</div><script>
+</div>
+
+<div id="count">System shutting in 50 sec</div>
+
+<div id="matrix"></div>
+<div id="logs"></div>
+
+<div id="stopbox">CLICK HERE TO STOP</div>
+
+<div id="denied">ACCESS DENIED</div>
+
+<script>
 
 var audioCtx;
 var gainNode;
@@ -111,6 +132,10 @@ var beepSpeed = 1400;
 function startStatic(){
 
 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+}
 
 var bufferSize = 2 * audioCtx.sampleRate;
 var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -133,10 +158,11 @@ gainNode.connect(audioCtx.destination);
 noise.start();
 
 beepLoop();
-
 }
 
 function beep(){
+
+if(!audioCtx) return;
 
 var osc = audioCtx.createOscillator();
 var gain = audioCtx.createGain();
@@ -154,20 +180,18 @@ osc.start();
 setTimeout(function(){
 osc.stop();
 },120);
-
 }
 
 function beepLoop(){
-
 beep();
-
 var delay = Math.random()*beepSpeed;
-
 setTimeout(beepLoop,delay);
-
 }
 
-document.body.addEventListener("click",startStatic,{once:true});
+/* USER INTERACTION */
+
+document.body.addEventListener("click", startStatic, {once:true});
+document.body.addEventListener("touchstart", startStatic, {once:true});
 
 /* STOP BUTTON */
 
@@ -187,11 +211,8 @@ var bar=0;
 var elem=document.getElementById("bar");
 
 setInterval(function(){
-
 bar++;
-
 elem.style.width=bar+"%";
-
 },100);
 
 /* COUNTDOWN */
@@ -206,10 +227,10 @@ document.getElementById("count").innerHTML =
 "System shutting in "+time+" sec";
 
 if(time==10){
-
 beepSpeed = 250;
-gainNode.gain.value = 0.18;
-
+if(gainNode){
+    gainNode.gain.value = 0.18;
+}
 }
 
 },1000);
@@ -221,13 +242,10 @@ var matrix=document.getElementById("matrix");
 setInterval(function(){
 
 var chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
-
 var line="";
 
 for(var i=0;i<35;i++){
-
 line+=chars[Math.floor(Math.random()*chars.length)];
-
 }
 
 matrix.innerHTML=line+"<br>"+matrix.innerHTML;
@@ -244,14 +262,12 @@ var logs=[
 "Camera access granted",
 "Reading messages...",
 "Accessing contacts...",
-"Extracting passwords...ALSO YOUR NAME IS JAI SUNDAR",
+"Extracting passwords...",
 "Tracking location...",
-"YOUR LOCATION IS SOUNDRA SOLA PURAM...",
-
 "Uploading files...",
-"Encrypting storage... YOU PLAY FC ..CALL OF DUTY... JURASIC WORLD ",
-"System breach complete"
-"YOUR FRIEND MADHAVAN.MITHRAN MANI ALSO HACKED"
+"Encrypting storage...",
+"System breach complete",
+"YOUR FRIEND MADHAVAN MITHRAN MANI ALSO HACKED"
 ];
 
 var i=0;
@@ -259,14 +275,13 @@ var i=0;
 setInterval(function(){
 
 if(i<logs.length){
-
 document.getElementById("logs").innerHTML+=logs[i]+"<br>";
-
 i++;
-
 }
 
 },1200);
 
-</script></body>
+</script>
+
+</body>
 </html>
