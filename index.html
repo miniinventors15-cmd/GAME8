@@ -1,286 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>System Breach</title>
-<style>
-
-body{
-background:black;
-color:#00ff00;
-font-family:monospace;
-margin:0;
-overflow:hidden;
-text-align:center;
-}
-
-#warning{
-color:red;
-font-size:60px;
-margin-top:30px;
-animation:shake 0.1s infinite;
-}
-
-@keyframes shake{
-0%{transform:translate(0,0)}
-25%{transform:translate(2px,-2px)}
-50%{transform:translate(-2px,2px)}
-75%{transform:translate(2px,2px)}
-100%{transform:translate(-2px,-2px)}
-}
-
-#barbox{
-width:70%;
-height:35px;
-border:3px solid lime;
-margin:auto;
-margin-top:20px;
-}
-
-#bar{
-height:100%;
-width:0%;
-background:red;
-}
-
-#count{
-font-size:35px;
-color:yellow;
-margin-top:15px;
-}
-
-#matrix{
-position:absolute;
-right:0;
-top:0;
-width:20%;
-height:60%;
-font-size:10px;
-color:#00ff00;
-overflow:hidden;
-}
-
-#logs{
-position:absolute;
-left:10px;
-top:220px;
-width:50%;
-text-align:left;
-font-size:18px;
-line-height:28px;
-}
-
-#stopbox{
-position:absolute;
-right:30px;
-bottom:30px;
-background:red;
-color:white;
-padding:30px;
-font-size:30px;
-border:4px solid white;
-cursor:pointer;
-animation:blink 0.8s infinite;
-}
-
-@keyframes blink{
-0%{opacity:1}
-50%{opacity:0.3}
-100%{opacity:1}
-}
-
-#denied{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-font-size:120px;
-color:red;
-display:none;
-font-weight:bold;
-animation:blink 0.4s infinite;
-}
-
-</style>
+  <meta charset="UTF-8">
+  <title>Thermal Estimator v2</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: auto;
+    }
+    input, select {
+      width: 90%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      padding: 10px;
+      background: limegreen;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="warning">⚠ YOU ARE BEING HACKED ⚠</div>
-<h2>DONT LEAVE !!!</h2>
+<div class="card">
+  <h2>🔥 Thermal Estimator v2</h2>
 
-<div id="barbox">
-<div id="bar"></div>
+  <input type="number" id="batteryTemp" placeholder="Battery Temp °C">
+
+  <select id="mode">
+    <option value="idle">Idle</option>
+    <option value="gaming">Gaming</option>
+    <option value="heavy">Heavy Gaming (BR)</option>
+  </select>
+
+  <select id="fps">
+    <option value="40">40 FPS</option>
+    <option value="60">60 FPS</option>
+    <option value="120">120 FPS</option>
+  </select>
+
+  <input type="number" id="brightness" placeholder="Brightness %">
+
+  <select id="case">
+    <option value="no">No Case</option>
+    <option value="yes">Case On</option>
+  </select>
+
+  <select id="fan">
+    <option value="off">Fan OFF</option>
+    <option value="on">Fan ON</option>
+  </select>
+
+  <button onclick="calculate()">Estimate</button>
+
+  <h3 id="result"></h3>
 </div>
 
-<div id="count">System shutting in 50 sec</div>
-
-<div id="matrix"></div>
-<div id="logs"></div>
-
-<div id="stopbox">CLICK HERE TO STOP</div>
-
-<div id="denied">ACCESS DENIED</div>
-
 <script>
+function calculate() {
+  let battery = parseFloat(document.getElementById("batteryTemp").value);
+  let mode = document.getElementById("mode").value;
+  let fps = parseInt(document.getElementById("fps").value);
+  let brightness = parseInt(document.getElementById("brightness").value);
+  let caseOn = document.getElementById("case").value;
+  let fan = document.getElementById("fan").value;
 
-var audioCtx;
-var gainNode;
-var beepSpeed = 1400;
+  if (isNaN(battery)) {
+    document.getElementById("result").innerHTML = "Enter battery temp!";
+    return;
+  }
 
-/* SOUND */
+  let load = 0;
 
-function startStatic(){
+  // Mode
+  if (mode === "idle") load += 3;
+  if (mode === "gaming") load += 12;
+  if (mode === "heavy") load += 18;
 
-audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // FPS
+  if (fps === 40) load += 3;
+  if (fps === 60) load += 6;
+  if (fps === 120) load += 12;
 
-if (audioCtx.state === "suspended") {
-    audioCtx.resume();
+  // Brightness
+  if (!isNaN(brightness)) load += brightness / 10;
+
+  // Case effect
+  if (caseOn === "yes") load += 3;
+
+  // Fan effect
+  if (fan === "on") load -= 4;
+
+  let estimated = battery + load;
+
+  let status = "";
+  if (estimated < 45) status = "🟢 Cool";
+  else if (estimated < 60) status = "🟡 Warm";
+  else if (estimated < 75) status = "🟠 Hot";
+  else status = "🔴 Very Hot";
+
+  document.getElementById("result").innerHTML =
+    `Estimated CPU Temp: ${estimated.toFixed(1)}°C<br>Status: ${status}`;
 }
-
-var bufferSize = 2 * audioCtx.sampleRate;
-var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-var output = noiseBuffer.getChannelData(0);
-
-for (var i = 0; i < bufferSize; i++) {
-output[i] = Math.random() * 2 - 1;
-}
-
-var noise = audioCtx.createBufferSource();
-noise.buffer = noiseBuffer;
-noise.loop = true;
-
-gainNode = audioCtx.createGain();
-gainNode.gain.value = 0.10;
-
-noise.connect(gainNode);
-gainNode.connect(audioCtx.destination);
-
-noise.start();
-
-beepLoop();
-}
-
-function beep(){
-
-if(!audioCtx) return;
-
-var osc = audioCtx.createOscillator();
-var gain = audioCtx.createGain();
-
-osc.type="square";
-osc.frequency.value=1000;
-
-gain.gain.value=0.20;
-
-osc.connect(gain);
-gain.connect(audioCtx.destination);
-
-osc.start();
-
-setTimeout(function(){
-osc.stop();
-},120);
-}
-
-function beepLoop(){
-beep();
-var delay = Math.random()*beepSpeed;
-setTimeout(beepLoop,delay);
-}
-
-/* USER INTERACTION */
-
-document.body.addEventListener("click", startStatic, {once:true});
-document.body.addEventListener("touchstart", startStatic, {once:true});
-
-/* STOP BUTTON */
-
-document.getElementById("stopbox").onclick=function(){
-
-document.getElementById("denied").style.display="block";
-
-for(let i=0;i<6;i++){
-setTimeout(beep,i*100);
-}
-
-};
-
-/* LOADING BAR */
-
-var bar=0;
-var elem=document.getElementById("bar");
-
-setInterval(function(){
-bar++;
-elem.style.width=bar+"%";
-},100);
-
-/* COUNTDOWN */
-
-var time=50;
-
-setInterval(function(){
-
-time--;
-
-document.getElementById("count").innerHTML =
-"System shutting in "+time+" sec";
-
-if(time==10){
-beepSpeed = 250;
-if(gainNode){
-    gainNode.gain.value = 0.18;
-}
-}
-
-},1000);
-
-/* MATRIX */
-
-var matrix=document.getElementById("matrix");
-
-setInterval(function(){
-
-var chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
-var line="";
-
-for(var i=0;i<35;i++){
-line+=chars[Math.floor(Math.random()*chars.length)];
-}
-
-matrix.innerHTML=line+"<br>"+matrix.innerHTML;
-
-},50);
-
-/* LOGS */
-
-var logs=[
-"Accessing IP address...",
-"IP FOUND: 192.168.0.24",
-"Scanning device...",
-"Accessing camera...",
-"Camera access granted",
-"Reading messages...",
-"Accessing contacts...",
-"Extracting passwords...",
-"Tracking location...",
-"Uploading files...",
-"Encrypting storage...",
-"System breach complete",
-"YOUR FRIEND MADHAVAN MITHRAN MANI ALSO HACKED"
-];
-
-var i=0;
-
-setInterval(function(){
-
-if(i<logs.length){
-document.getElementById("logs").innerHTML+=logs[i]+"<br>";
-i++;
-}
-
-},1200);
-
 </script>
 
 </body>
